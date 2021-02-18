@@ -43,11 +43,8 @@ def turn():
         return turn()
 
 
-def winner(board):
+def winner():
     opponent = "O" if player == "X" else "X"
-
-    def int_or_str(i):
-        return type(i)
 
     if (
         (board[0].count(player) == 3)
@@ -72,63 +69,66 @@ def winner(board):
     ):
         return opponent
     elif [
-        list(map(int_or_str, board[0])).count(int) == 0,
-        list(map(int_or_str, board[1])).count(int) == 0,
-        list(map(int_or_str, board[2])).count(int) == 0,
+        list(map(type, board[0])).count(int) == 0,
+        list(map(type, board[1])).count(int) == 0,
+        list(map(type, board[2])).count(int) == 0,
     ].count(False) == 0:
         return "tie"
     else:
         return False
 
 
-def ai_turn():
+def minimax(maxing: bool):
     opponent = "O" if player == "X" else "X"
 
     scores = {"player": 1, "opponent": -1, "tie": 0}
+    win_result = winner()
 
-    def minimax(maxing):
-        win_result = winner(board)
-        if win_result:
-            return (
-                scores["tie"]
-                if win_result == "tie"
-                else scores["player" if player == win_result else "opponent"]
-            )
+    if win_result:
+        return (
+            scores["tie"]
+            if win_result == "tie"
+            else scores["player" if player == win_result else "opponent"]
+        )
 
-        if maxing:
-            best_score = -2
-            for i in range(3):
-                for j in range(3):
-                    if type(board[i][j]) == int:
-                        board[i][j] = player
-                        score = minimax(False)
-                        board[i][j] = (i * 3) + (j + 1)
-                        if score > best_score:
-                            best_score = score
-                            if best_score == 1:
-                                break
+    if maxing:
+        best_score = -2
+        for i in range(3):
+            for j in range(3):
+                if type(board[i][j]) == int:
+                    board[i][j] = player
+                    score = minimax(False)
+                    board[i][j] = (i * 3) + (j + 1)
+                    if score > best_score:
+                        best_score = score
+                        if best_score == 1:
+                            break
 
-                if best_score == 1:
-                    break
+            if best_score == 1:
+                break
 
-            return best_score
-        else:
-            best_score = 2
-            for i in range(3):
-                for j in range(3):
-                    if type(board[i][j]) == int:
-                        board[i][j] = opponent
-                        score = minimax(True)
-                        board[i][j] = (i * 3) + (j + 1)
-                        if score < best_score:
-                            best_score = score
-                            if best_score == -1:
-                                break
+        return best_score
+    else:
+        best_score = 2
+        for i in range(3):
+            for j in range(3):
+                if type(board[i][j]) == int:
+                    board[i][j] = opponent
+                    score = minimax(True)
+                    board[i][j] = (i * 3) + (j + 1)
+                    if score < best_score:
+                        best_score = score
+                        if best_score == -1:
+                            break
 
-                if best_score == -1:
-                    break
+            if best_score == -1:
+                break
 
-            return best_score
+        return best_score
+
+
+def ai_turn():
+    opponent = "O" if player == "X" else "X"
 
     best_score = -2
     best_move = []
@@ -152,7 +152,7 @@ def ai_turn():
     return best_move
 
 
-def win_display(result):
+def win_display(result: str):
     if result == "tie":
         print(
             f"\n+———+———+———+\n| {board[0][0]} | {board[0][1]} | {board[0][2]} |\n+———+———+———+\n| {board[1][0]} | {board[1][1]} | {board[1][2]} |\n+———+———+———+\n| {board[2][0]} | {board[2][1]} | {board[2][2]} |\n+———+———+———+"
@@ -180,8 +180,7 @@ while True:
             f"AI has taken it's turn as {player} at spot {(ai_move[0] * 3) + (ai_move[1] + 1)}"
         )
 
-        win_result = winner(board)
-        if win_display(win_result):
+        if win_display(winner()):
             break
         else:
             print(
@@ -192,15 +191,13 @@ while True:
         if turn() == "stop":
             break
 
-        win_result = winner(board)
-        if win_display(win_result):
+        if win_display(winner()):
             break
     else:
         if turn() == "stop":
             break
 
-        win_result = winner(board)
-        if win_display(win_result):
+        if win_display(winner()):
             break
 
         if ai:
@@ -213,8 +210,7 @@ while True:
                 f"AI has taken it's turn as {player} at spot {(ai_move[0] * 3) + (ai_move[1] + 1)}"
             )
 
-            win_result = winner(board)
-            if win_display(win_result):
+            if win_display(winner()):
                 break
 
     player = "O" if player == "X" else "X"
