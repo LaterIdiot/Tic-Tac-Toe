@@ -1,4 +1,11 @@
-import math
+from math import *
+
+print("""
+Tic-tac-toe
+
+ • This program allows you to play Tic-tac-toe against a player or a computer.
+ • To select a spot on the board you have to type in the number corresponding to that spot.
+ """)
 
 # sets up the board as 2 dimensional array
 board = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
@@ -20,8 +27,16 @@ if ai:
     # turns user input into boolean
     ai_first = True if ai_first == "yes" else False
 
+
+def display_board(board: list):
+    print(
+        f"\n+———+———+———+\n| {board[0][0]} | {board[0][1]} | {board[0][2]} |\n+———+———+———+\n| {board[1][0]} | {board[1][1]} | {board[1][2]} |\n+———+———+———+\n| {board[2][0]} | {board[2][1]} | {board[2][2]} |\n+———+———+———+"
+    )
+
+
 # a function for user turn
-def turn():
+def turn(board: list, player: str):
+    # converts user input into a move on the board
     try:
         move = input(f"Pick turn as {player}: ")
 
@@ -34,16 +49,18 @@ def turn():
             print("Input can't be bigger than 9 or less than 1!")
             raise
 
-        if type(board[math.floor((move - 1) / 3)][(move % 3) - 1]) == int:
-            board[math.floor((move - 1) / 3)][(move % 3) - 1] = player
+        if type(board[floor((move - 1) / 3)][(move % 3) - 1]) == int:
+            board[floor((move - 1) / 3)][(move % 3) - 1] = player
         else:
             print("You can't choose a spot that has been already selected!")
             raise
     except:
-        return turn()
+        print("")
+        return turn(board, player)
 
 
-def winner():
+# checks if there is a winner or a tie
+def winner(board: list):
     opponent = "O" if player == "X" else "X"
 
     if (
@@ -78,11 +95,19 @@ def winner():
         return False
 
 
-def minimax(maxing: bool):
+# function based on minimax algorithm this is a recursive algorithm
+def minimax(maxing: bool, board: list, player: str):
+    """
+    This is a algorithm that helps choose the best move of a stage in
+    the game. It does this by looping through each possible stage from
+    the current stage and figures out which one is the best on scoring
+    system and picking the on with the highest score.
+    """
+
     opponent = "O" if player == "X" else "X"
 
     scores = {"player": 1, "opponent": -1, "tie": 0}
-    win_result = winner()
+    win_result = winner(board)
 
     if win_result:
         return (
@@ -97,7 +122,7 @@ def minimax(maxing: bool):
             for j in range(3):
                 if type(board[i][j]) == int:
                     board[i][j] = player
-                    score = minimax(False)
+                    score = minimax(False, board, player)
                     board[i][j] = (i * 3) + (j + 1)
                     if score > best_score:
                         best_score = score
@@ -114,7 +139,7 @@ def minimax(maxing: bool):
             for j in range(3):
                 if type(board[i][j]) == int:
                     board[i][j] = opponent
-                    score = minimax(True)
+                    score = minimax(True, board, player)
                     board[i][j] = (i * 3) + (j + 1)
                     if score < best_score:
                         best_score = score
@@ -127,17 +152,19 @@ def minimax(maxing: bool):
         return best_score
 
 
-def ai_turn():
+# picks AI turn
+def ai_turn(board: list, player: str):
     opponent = "O" if player == "X" else "X"
 
     best_score = -2
     best_move = []
 
+    # this set of for loops assigns best move to the variable "best_move"
     for i in range(3):
         for j in range(3):
             if type(board[i][j]) == int:
                 board[i][j] = player
-                score = minimax(False)
+                score = minimax(False, board, player)
                 board[i][j] = (i * 3) + (j + 1)
                 if score > best_score:
                     best_score = score
@@ -152,65 +179,57 @@ def ai_turn():
     return best_move
 
 
-def win_display(result: str):
+# displays winner or a tie if game end occurs and also returns if the game ended or not in boolean
+def win_display(result: str, board: list):
     if result == "tie":
-        print(
-            f"\n+———+———+———+\n| {board[0][0]} | {board[0][1]} | {board[0][2]} |\n+———+———+———+\n| {board[1][0]} | {board[1][1]} | {board[1][2]} |\n+———+———+———+\n| {board[2][0]} | {board[2][1]} | {board[2][2]} |\n+———+———+———+"
-        )
+        display_board(board)
         print("Nobody won it's a TIE!")
         return True
     elif result:
-        print(
-            f"\n+———+———+———+\n| {board[0][0]} | {board[0][1]} | {board[0][2]} |\n+———+———+———+\n| {board[1][0]} | {board[1][1]} | {board[1][2]} |\n+———+———+———+\n| {board[2][0]} | {board[2][1]} | {board[2][2]} |\n+———+———+———+"
-        )
+        display_board(board)
         print(f"🎉{player} is the WINNER!🎉")
         return True
     else:
         return False
 
 
+# main loop to run the game until game end
 while True:
-    print(
-        f"\n+———+———+———+\n| {board[0][0]} | {board[0][1]} | {board[0][2]} |\n+———+———+———+\n| {board[1][0]} | {board[1][1]} | {board[1][2]} |\n+———+———+———+\n| {board[2][0]} | {board[2][1]} | {board[2][2]} |\n+———+———+———+"
-    )
+    display_board(board)
 
     if ai_first:
-        ai_move = ai_turn()
+        ai_move = ai_turn(board, player)
         print(
-            f"AI has taken it's turn as {player} at spot {(ai_move[0] * 3) + (ai_move[1] + 1)}"
+            f"AI picked its turn as {player} at spot {(ai_move[0] * 3) + (ai_move[1] + 1)}"
         )
 
-        if win_display(winner()):
+        if win_display(winner(board), board):
             break
         else:
-            print(
-                f"\n+———+———+———+\n| {board[0][0]} | {board[0][1]} | {board[0][2]} |\n+———+———+———+\n| {board[1][0]} | {board[1][1]} | {board[1][2]} |\n+———+———+———+\n| {board[2][0]} | {board[2][1]} | {board[2][2]} |\n+———+———+———+"
-            )
+            display_board(board)
 
         player = "O" if player == "X" else "X"
-        if turn() == "stop":
+        if turn(board, player) == "stop":
             break
 
-        if win_display(winner()):
+        if win_display(winner(board), board):
             break
     else:
-        if turn() == "stop":
+        if turn(board, player) == "stop":
             break
 
-        if win_display(winner()):
+        if win_display(winner(board), board):
             break
 
         if ai:
-            print(
-                f"\n+———+———+———+\n| {board[0][0]} | {board[0][1]} | {board[0][2]} |\n+———+———+———+\n| {board[1][0]} | {board[1][1]} | {board[1][2]} |\n+———+———+———+\n| {board[2][0]} | {board[2][1]} | {board[2][2]} |\n+———+———+———+"
-            )
+            display_board(board)
             player = "O" if player == "X" else "X"
-            ai_move = ai_turn()
+            ai_move = ai_turn(board, player)
             print(
-                f"AI has taken it's turn as {player} at spot {(ai_move[0] * 3) + (ai_move[1] + 1)}"
+                f"AI picked its turn as {player} at spot {(ai_move[0] * 3) + (ai_move[1] + 1)}"
             )
 
-            if win_display(winner()):
+            if win_display(winner(board), board):
                 break
 
     player = "O" if player == "X" else "X"
