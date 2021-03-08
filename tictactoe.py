@@ -176,7 +176,7 @@ def ai_turn(board: list, player: str):
             break
 
     board[best_move[0]][best_move[1]] = player
-    return best_move
+    return ((best_move[0] * 3) + (best_move[1] + 1))
 
 
 # displays winner or a tie if game end occurs and also returns if the game ended or not in boolean
@@ -200,7 +200,7 @@ while True:
     if ai_first:
         ai_move = ai_turn(board, player)
         print(
-            f"AI picked its turn as {player} at spot {(ai_move[0] * 3) + (ai_move[1] + 1)}"
+            f"AI picked its turn as {player} at spot {ai_move}"
         )
 
         if win_display(winner(board), board):
@@ -226,7 +226,7 @@ while True:
             player = "O" if player == "X" else "X"
             ai_move = ai_turn(board, player)
             print(
-                f"AI picked its turn as {player} at spot {(ai_move[0] * 3) + (ai_move[1] + 1)}"
+                f"AI picked its turn as {player} at spot {ai_move}"
             )
 
             if win_display(winner(board), board):
